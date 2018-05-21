@@ -4,13 +4,6 @@
 #include <exception>
 #include "Generator.hpp"
 
-int parameterError()
-{
-    std::cerr << "Invalid program parameters" << std::endl;
-    std::cerr << "Proper use: ./surykatki <mode> <parameters> <<in_file >>out_file" << std::endl;
-    return EXIT_FAILURE;
-}
-
 class Controller
 {
 public:
@@ -30,19 +23,21 @@ public:
     int runApp()
     {
         if (argc < 2)
-            throw std::invalid_argument("");
+            throw std::invalid_argument("Not enough arguments.");
 
         std::string buf = argv[1];
         if (buf == "-m1")
-            return m1();
+            m1();
         else if (buf == "-m2")
-            return m2();
+            m2();
         else if (buf == "-m3")
-            return m3();
+            m3();
         else if (buf == "-gen")
-            return gen();
+            gen();
         else
-            return parameterError();
+            throw std::invalid_argument("Expected mode flag.");
+
+        return EXIT_SUCCESS;
     }
 
 private:
@@ -86,24 +81,36 @@ private:
             arg = argv[i];
             if (arg.find(flag) == 0)
             {
-                param_index = i;
-                break;
+                if (param_index == -1)
+                    param_index = i;
+                else
+                    param_index = -2;
             }
         }
 
-        if (param_index > -1)
+        if (param_index > 0)
         {
             arg = argv[param_index];
             arg.erase(0, flag_str.length());
             ret_val = std::stoi(arg, nullptr);
         }
+        else if (param_index == -1)
+        {
+            std::string msg = "Expected flag: ";
+            msg += flag;
+            throw std::invalid_argument(msg);
+        }
         else
-            throw std::invalid_argument("");
+        {
+            std::string msg = "Ambiguous flag: ";
+            msg += flag;
+            throw std::invalid_argument(msg);
+        }
 
         return ret_val;
     }
 
-    int m1() //-m1
+    void m1() //-m1
     {
         Solver *solver = nullptr;
 
@@ -112,11 +119,9 @@ private:
         solver->printFullResult();
 
         delete solver;
-
-        return EXIT_SUCCESS;
     }
 
-    int m2() //-m2 -n100
+    void m2() //-m2 -n100
     {
         int nr_of_crocs;
 
@@ -131,11 +136,9 @@ private:
         solver->printFullResult();
 
         delete solver;
-
-        return EXIT_SUCCESS;
     }
 
-    int m3() //-m3 n1000 -k30 -step500 -r10
+    void m3() //-m3 n1000 -k30 -step500 -r10
     {
         int nr_of_crocs, iters, step, repeats;
 
@@ -165,10 +168,9 @@ private:
             statistics.finishTrial();
         }
         statistics.print(nr_of_crocs, step, square);
-        return EXIT_SUCCESS;
     }
 
-    int gen() //-gen -n100
+    void gen() //-gen -n100
     {
         int nr_of_crocs = 0;
 
@@ -177,8 +179,6 @@ private:
         Generator generator(nr_of_crocs);
         generator.generate();
         generator.print();
-
-        return EXIT_SUCCESS;
     }
 
 };
