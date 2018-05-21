@@ -5,11 +5,10 @@
 #include <algorithm>
 #include <cmath>
 #include <vector>
-#include <chrono>
-#include <queue>
 #include "Crocodile.hpp"
 #include "Point.hpp"
 #include "Graph.hpp"
+#include "Statistics.hpp"
 
 const double JUMP_RANGE = 1.0;
 const int NR_OF_MEERKATS = 5;
@@ -38,7 +37,7 @@ public:
 
     void solve();
 
-    void printResult();
+    void solve(Statistics &statistics);
 
     void printFullResult();
 
@@ -51,7 +50,6 @@ protected:
     double *meerkats = nullptr;
     std::vector<Path> shortest_paths;
     int *meerkat_routes = nullptr;
-    std::queue<std::chrono::high_resolution_clock::time_point> time_points;
 
     void initCrocodiles();
 

@@ -1,4 +1,5 @@
 #include "Solver.h"
+#include "Statistics.hpp"
 
 Solver::Solver(const int nr_of_crocodiles, const double river_length, const double river_width,
                const std::vector<Crocodile> &crocodiles) : NR_OF_CROCODILES(nr_of_crocodiles),
@@ -43,33 +44,22 @@ Solver::~Solver()
 
 void Solver::solve()
 {
-    time_points.push(std::chrono::high_resolution_clock::now());
     findConnections();
 
-    time_points.push(std::chrono::high_resolution_clock::now());
     calcMeerkatsDistances();
 
-    time_points.push(std::chrono::high_resolution_clock::now());
     findPaths();
 
-    time_points.push(std::chrono::high_resolution_clock::now());
     jumpAcrossRiver();
-
-    time_points.push(std::chrono::high_resolution_clock::now());
 }
 
-void Solver::printResult()
+void Solver::solve(Statistics &statistics)
 {
-    while (time_points.size() > 1)
-    {
-        auto before = time_points.front();
-        time_points.pop();
-        auto now = time_points.front();
-        std::chrono::duration<long double> duration = now - before;
-        std::cout << duration.count();
-        if (time_points.size() > 1)
-            std::cout << "; ";
-    }
+    statistics.start();
+
+    solve();
+
+    statistics.stop();
 }
 
 void Solver::printFullResult()

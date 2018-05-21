@@ -14,7 +14,7 @@ int parameterError()
 class Controller
 {
 public:
-    Controller(int argc, char **argv): argc(argc), argv(argv)
+    Controller(int argc, char **argv) : argc(argc), argv(argv)
     {
         std_in_buf = std::cin.rdbuf();
         std_out_buf = std::cout.rdbuf();
@@ -29,17 +29,17 @@ public:
 
     int runApp()
     {
-        if(argc < 2)
+        if (argc < 2)
             throw std::invalid_argument("");
 
         std::string buf = argv[1];
-        if(buf == "-m1")
+        if (buf == "-m1")
             return m1();
-        else if(buf == "-m2")
+        else if (buf == "-m2")
             return m2();
-        else if(buf == "-m3")
+        else if (buf == "-m3")
             return m3();
-        else if(buf == "-gen")
+        else if (buf == "-gen")
             return gen();
         else
             return parameterError();
@@ -56,7 +56,7 @@ private:
     void redirect()
     {
         std::string buf;
-        for(int i = 2; i < argc; ++i)
+        for (int i = 2; i < argc; ++i)
         {
             buf = argv[i];
             if (buf.find("<<") == 0)
@@ -74,24 +74,24 @@ private:
         }
     }
 
-    int getParam(const char* flag)
+    int getParam(const char *flag)
     {
         std::string flag_str = flag;
         int ret_val;
         int param_index = -1;
         std::string arg;
 
-        for(int i = 1; i < argc; ++i)
+        for (int i = 1; i < argc; ++i)
         {
             arg = argv[i];
-            if(arg.find(flag) == 0)
+            if (arg.find(flag) == 0)
             {
                 param_index = i;
                 break;
             }
         }
 
-        if(param_index > -1)
+        if (param_index > -1)
         {
             arg = argv[param_index];
             arg.erase(0, flag_str.length());
@@ -102,7 +102,7 @@ private:
 
         return ret_val;
     }
-    
+
     int m1() //-m1
     {
         Solver *solver = nullptr;
@@ -128,37 +128,44 @@ private:
         Solver *solver = nullptr;
         solver = new BruteForce(nr_of_crocs, generator.real_river_length, generator.RIVER_WIDTH, generator.crocodiles);
         solver->solve();
-        solver->printResult();
+        solver->printFullResult();
 
         delete solver;
 
         return EXIT_SUCCESS;
     }
 
-    int m3() //-m3 n1000 -k30 -step500
+    int m3() //-m3 n1000 -k30 -step500 -r10
     {
-        int nr_of_crocs, iters, step;
+        int nr_of_crocs, iters, step, repeats;
 
         nr_of_crocs = getParam("-n");
         iters = getParam("-k");
         step = getParam("-step");
+        repeats = getParam("-r");
 
+        Statistics statistics;
         Solver *solver = nullptr;
-        for(int i = 0; i < iters; ++i)
+        int n = nr_of_crocs;
+        for (int i = 0; i < iters; ++i)
         {
-            std::cout<<nr_of_crocs<<"; ";
+            statistics.newTrial();
 
-            Generator generator(nr_of_crocs);
-            generator.generate();
+            for (int j = 0; j < repeats; ++j)
+            {
+                Generator generator(n);
+                generator.generate();
 
-            solver = new BruteForce(nr_of_crocs, generator.real_river_length, generator.RIVER_WIDTH, generator.crocodiles);
-            solver->solve();
-            solver->printResult();
-            delete solver;
+                solver = new BruteForce(n, generator.real_river_length, generator.RIVER_WIDTH, generator.crocodiles);
+                solver->solve(statistics);
+                delete solver;
+            }
 
-            std::cout<<"\r\n";
-            nr_of_crocs += step;
+            n += step;
+            statistics.finishTrial();
         }
+        statistics.print(nr_of_crocs, step, square);
+        return EXIT_SUCCESS;
     }
 
     int gen() //-gen -n100
