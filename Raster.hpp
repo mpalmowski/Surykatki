@@ -3,6 +3,7 @@
 
 #include "Solver.h"
 #include <queue>
+#include <fstream>
 
 class Raster : public Solver
 {
@@ -28,7 +29,7 @@ public:
     ~Raster() override = default;
 
 private:
-    const double RASTER_PRECISION = 100.0;
+    const double RASTER_PRECISION = 10.0;
     std::queue<int> **pixel_map = nullptr;
 
     void findConnections() override
@@ -41,7 +42,7 @@ private:
 
             for (int j = i + 1; j < NR_OF_CROCODILES; ++j)
             {
-                checkConnections(crocodiles[i]);
+                checkConnections(crocodiles[i], i);
             }
         }
     }
@@ -49,15 +50,38 @@ private:
     void createMap()
     {
         pixel_map = new std::queue<int> *[(int) (RIVER_LENGTH * RASTER_PRECISION)];
-        for (int i = 0; i < RIVER_LENGTH * RASTER_PRECISION; ++i)
+        for (int i = 0; i < (int) (RIVER_LENGTH * RASTER_PRECISION); ++i)
         {
             pixel_map[i] = new std::queue<int>[(int) (RIVER_WIDTH * RASTER_PRECISION)];
         }
 
         for (int i = 0; i < NR_OF_CROCODILES; ++i)
         {
-            bresenhamLine(crocodiles[i].point1, crocodiles[i].point2, i);
+            contour(crocodiles[i], i);
         }
+        testPrint();
+    }
+
+    int mapped(double coord)
+    {
+        return (int) round(coord * RASTER_PRECISION);
+    }
+
+    void addPixel(int x, int y, int index)
+    {
+        if (x >= 0 && y >= 0 && x < (int) (RIVER_LENGTH * RASTER_PRECISION) &&
+            y < (int) (RIVER_WIDTH * RASTER_PRECISION))
+        {
+            if (pixel_map[x][y].empty() || pixel_map[x][y].back() != index)
+                pixel_map[x][y].push(index);
+        }
+    }
+
+    void contour(Crocodile &croc, int index)
+    {
+        midPoint(croc.point1, JUMP_RANGE / 2, index);
+        midPoint(croc.point2, JUMP_RANGE / 2, index);
+        //TODO
     }
 
     void bresenhamLine(Point p1, Point p2, int index)
@@ -83,17 +107,6 @@ private:
             y += y_inc;
             addPixel((int) round(x), (int) round(y), index);
         }
-    }
-
-    int mapped(double coord)
-    {
-        return (int) round(coord * RASTER_PRECISION);
-    }
-
-    void addPixel(int x, int y, int index)
-    {
-        if (pixel_map[x][y].empty() || pixel_map[x][y].back() != index)
-            pixel_map[x][y].push(index);
     }
 
     void midPoint(Point middle, double radius, int index)
@@ -128,9 +141,27 @@ private:
         }
     }
 
-    void checkConnections(Crocodile &croc1)
+    void checkConnections(Crocodile &croc, int index)
     {
+        //TODO
+    }
 
+    void testPrint()
+    {
+        std::ofstream file;
+        file.open("test.txt");
+        for (int y = 0; y < (int) (RIVER_WIDTH * RASTER_PRECISION); ++y)
+        {
+            for (int x = 0; x < (int) (RIVER_LENGTH * RASTER_PRECISION); ++x)
+            {
+                if (pixel_map[x][y].empty())
+                    file << 0;
+                else
+                    file << pixel_map[x][y].front();
+            }
+            file << "\r\n";
+        }
+        file.close();
     }
 };
 
