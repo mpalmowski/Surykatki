@@ -55,7 +55,7 @@ protected:
 
     void sortCrocodiles();
 
-    virtual void findConnections() {}
+    virtual void findConnections() {std::cout<<"base";}
 
     void calcMeerkatsDistances();
 

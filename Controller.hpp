@@ -2,7 +2,15 @@
 #define MODES_HPP
 
 #include <exception>
+#include "Raster.hpp"
+#include "BruteForce.hpp"
 #include "Generator.hpp"
+
+typedef enum
+{
+    brute_force,
+    raster
+}Algorithm;
 
 class Controller
 {
@@ -41,6 +49,7 @@ public:
     }
 
 private:
+    const Algorithm algorithm = raster;
     std::streambuf *std_in_buf = nullptr;
     std::streambuf *std_out_buf = nullptr;
     std::ifstream in;
@@ -114,7 +123,15 @@ private:
     {
         Solver *solver = nullptr;
 
-        solver = BruteForce::readParametersAndCreate();
+        switch (algorithm)
+        {
+            case brute_force:
+                solver = BruteForce::readParametersAndCreate();
+                break;
+            case raster:
+                solver = Raster::readParametersAndCreate();
+                break;
+        }
         solver->solve();
         solver->printFullResult();
 
@@ -131,7 +148,15 @@ private:
         generator.generate();
 
         Solver *solver = nullptr;
-        solver = new BruteForce(nr_of_crocs, generator.real_river_length, generator.RIVER_WIDTH, generator.crocodiles);
+        switch (algorithm)
+        {
+            case brute_force:
+                solver = new BruteForce(nr_of_crocs, generator.real_river_length, generator.RIVER_WIDTH, generator.crocodiles);
+                break;
+            case raster:
+                solver = new Raster(nr_of_crocs, generator.real_river_length, generator.RIVER_WIDTH, generator.crocodiles);
+                break;
+        }
         solver->solve();
         solver->printFullResult();
 
@@ -159,7 +184,16 @@ private:
                 Generator generator(n);
                 generator.generate();
 
-                solver = new BruteForce(n, generator.real_river_length, generator.RIVER_WIDTH, generator.crocodiles);
+                switch (algorithm)
+                {
+                    case brute_force:
+                        solver = new BruteForce(n, generator.real_river_length, generator.RIVER_WIDTH, generator.crocodiles);
+                        break;
+                    case raster:
+                        solver = new Raster(n, generator.real_river_length, generator.RIVER_WIDTH, generator.crocodiles);
+                        break;
+                }
+
                 solver->solve(statistics);
                 delete solver;
             }
@@ -167,7 +201,15 @@ private:
             n += step;
             statistics.finishTrial();
         }
-        statistics.print(nr_of_crocs, step, square);
+        switch (algorithm)
+        {
+            case brute_force:
+                statistics.print(nr_of_crocs, step, square);
+                break;
+            case raster:
+                statistics.print(nr_of_crocs, step, linear);
+                break;
+        }
     }
 
     void gen() //-gen -n100

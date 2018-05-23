@@ -64,12 +64,6 @@ void Solver::solve(Statistics &statistics)
 
 void Solver::printFullResult()
 {
-    if (meerkat_routes[0] == 0)
-    {
-        std::cout << "No possible way found to cross the river" << std::endl;
-        return;
-    }
-
     for (int i = 0; i < NR_OF_CROCODILES; ++i)
     {
         std::cout << "Crocodile[" << i << "] ";
@@ -93,12 +87,19 @@ void Solver::printFullResult()
         std::cout << std::endl;
     }
 
-    for (auto &shortest_path : shortest_paths)
-        std::cout << shortest_path.start_node << " -> " << shortest_path.finish_node << " "
-                  << shortest_path.length << std::endl;
+    if (meerkat_routes[0] == 0)
+    {
+        std::cout << "No possible way found to cross the river" << std::endl;
+    }
+    else
+    {
+        for (auto &shortest_path : shortest_paths)
+            std::cout << shortest_path.start_node << " -> " << shortest_path.finish_node << " "
+                      << shortest_path.length << std::endl;
 
-    for (int i = 0; i < NR_OF_MEERKATS; ++i)
-        std::cout << "Meerkat[" << i << "] crossed the river in " << meerkat_routes[i] << " jumps" << std::endl;
+        for (int i = 0; i < NR_OF_MEERKATS; ++i)
+            std::cout << "Meerkat[" << i << "] crossed the river in " << meerkat_routes[i] << " jumps" << std::endl;
+    }
 }
 
 void Solver::initCrocodiles()

@@ -1,6 +1,5 @@
 #include <iostream>
 #include <fstream>
-#include "BruteForce.h"
 #include "Controller.hpp"
 
 std::string loadErrorMessage()
