@@ -18,7 +18,7 @@ public:
     }
 
     BruteForce(const int nr_of_crocodiles, const double river_length, const double river_width)
-            : BruteForce(nr_of_crocodiles, river_length, river_width, std::vector<Crocodile>()) {}
+            : Solver(nr_of_crocodiles, river_length, river_width) {}
 
     BruteForce(const int nr_of_crocodiles, const double river_length, const double river_width,
                const std::vector<Crocodile> &crocodiles) : Solver(nr_of_crocodiles, river_length, river_width,
@@ -36,12 +36,12 @@ private:
 
             for (int j = i + 1; j < NR_OF_CROCODILES; ++j)
             {
-                if (!graph[i][j])
+                if (!graph->node(i, j))
                 {
                     if (checkConnection(crocodiles[i], crocodiles[j]))
                     {
-                        graph[i][j] = 1;
-                        graph[j][i] = 1;
+                        graph->node(i, j) = 1;
+                        graph->node(j, i) = 1;
                     }
                 }
             }

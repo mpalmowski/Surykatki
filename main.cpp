@@ -16,7 +16,7 @@ int main(int argc, char **argv)
     try
     {
         Controller controller(argc, argv);
-        return controller.runApp();
+        controller.runApp();
     }
     catch (std::invalid_argument &e)
     {
@@ -29,4 +29,6 @@ int main(int argc, char **argv)
         std::cerr << e.what();
         return EXIT_FAILURE;
     }
+
+	return EXIT_SUCCESS;
 }

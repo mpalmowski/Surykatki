@@ -32,9 +32,26 @@ public:
         visited = new bool[columns];
     }
 
-    int *operator[](int line)
+    ~Graph()
     {
-        return data[line];
+        for (int i = 0; i < lines; ++i)
+        {
+            delete[] data[i];
+        }
+        delete data;
+
+        for (int i = 0; i < columns; ++i)
+        {
+            delete[] paths[i];
+        }
+        delete paths;
+
+        delete visited;
+    }
+
+    int &node(int i, int j)
+    {
+        return data[i][j];
     }
 
     void BreadthFirstSearch(int start_node)

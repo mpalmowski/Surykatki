@@ -6,11 +6,11 @@ Solver::Solver(const int nr_of_crocodiles, const double river_length, const doub
                                                            RIVER_LENGTH(river_length), RIVER_WIDTH(river_width),
                                                            crocodiles(crocodiles)
 {
-    graph = Graph(nr_of_crocodiles + NR_OF_MEERKATS, nr_of_crocodiles);
+    graph = new Graph(nr_of_crocodiles + NR_OF_MEERKATS, nr_of_crocodiles);
 
-    for (int i = 0; i < graph.lines; ++i)
-        for (int j = 0; j < graph.columns; ++j)
-            graph[i][j] = 0;
+    for (int i = 0; i < graph->lines; ++i)
+        for (int j = 0; j < graph->columns; ++j)
+            graph->node(i, j) = 0;
 
     meerkats = new double[NR_OF_MEERKATS];
     for (int i = 0; i < NR_OF_MEERKATS; ++i)
@@ -40,6 +40,8 @@ Solver::~Solver()
     delete meerkats;
 
     delete meerkat_routes;
+
+    delete graph;
 }
 
 void Solver::solve()
@@ -70,7 +72,7 @@ void Solver::printFullResult()
         crocodiles[i].printConnections();
         for (int j = 0; j < NR_OF_CROCODILES; ++j)
         {
-            if (graph[i][j] != 0)
+            if (graph->node(i, j) != 0)
                 std::cout << j << " ";
         }
         std::cout << std::endl;
@@ -81,8 +83,8 @@ void Solver::printFullResult()
         std::cout << "Meerkat[" << i << "] ( " << meerkats[i] << " ): ";
         for (int j = 0; j < NR_OF_CROCODILES; ++j)
         {
-            if (graph[i + NR_OF_CROCODILES][j] != 0)
-                std::cout << j << "(" << graph[i + NR_OF_CROCODILES][j] << ") ";
+            if (graph->node(i + NR_OF_CROCODILES, j) != 0)
+                std::cout << j << "(" << graph->node(i + NR_OF_CROCODILES, j) << ") ";
         }
         std::cout << std::endl;
     }
@@ -150,7 +152,7 @@ void Solver::calcMeerkatsDistances()
                     meerkats[i] <= crocodiles[j].connection_with_start[3])
                     distance = 0;
 
-            graph[NR_OF_CROCODILES + i][j] = distance + 1;
+            graph->node(NR_OF_CROCODILES + i, j) = distance + 1;
         }
     }
 }
@@ -159,14 +161,14 @@ void Solver::findPaths()
 {
     Path temp_path, shortest_path;
 
-    graph.updatePaths();
+    graph->updatePaths();
 
     for (int i = 0; i < NR_OF_CROCODILES; ++i)
     {
         if (crocodiles[i].connected_to_start == 0)
             continue;
 
-        graph.BreadthFirstSearch(i);
+        graph->BreadthFirstSearch(i);
 
         shortest_path = Path(i, i, 0);
 
@@ -175,7 +177,7 @@ void Solver::findPaths()
             if (crocodiles[j].connected_to_finish == 0)
                 continue;
 
-            auto distance = graph.getDistance(i, j);
+            auto distance = graph->getDistance(i, j);
             if (distance != 0)
             {
                 temp_path = Path(i, j, distance);
@@ -198,10 +200,10 @@ void Solver::jumpAcrossRiver()
 
         for (int j = 0; j < NR_OF_CROCODILES; ++j)
         {
-            if (graph[i + NR_OF_CROCODILES][j] == 0 || shortest_paths[j].length == 0)
+            if (graph->node(i + NR_OF_CROCODILES, j) == 0 || shortest_paths[j].length == 0)
                 continue;
 
-            temp_distance = graph[i + NR_OF_CROCODILES][j] + shortest_paths[j].length;
+            temp_distance = graph->node(i + NR_OF_CROCODILES, j) + shortest_paths[j].length;
 
             if (temp_distance < distance || distance == 0)
                 distance = temp_distance;

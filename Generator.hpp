@@ -72,15 +72,14 @@ struct Generator
 
     void print()
     {
-        const std::string endl = "\r\n";
-        std::cout << NR_OF_CROCS << " " << real_river_length << " " << RIVER_WIDTH << endl;
+        std::cout << NR_OF_CROCS << " " << real_river_length << " " << RIVER_WIDTH << "\r\n";
         for(int i = 0; i < NR_OF_CROCS; ++i)
         {
             std::cout << crocodiles[i].point1.x << " ";
             std::cout << crocodiles[i].point1.y << " ";
             std::cout << crocodiles[i].point2.x << " ";
             std::cout << crocodiles[i].point2.y << " ";
-            std::cout << endl;
+            std::cout << "\r\n";
         }
     }
 };

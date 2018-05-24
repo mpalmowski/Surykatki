@@ -46,7 +46,7 @@ protected:
     const double RIVER_LENGTH;
     const double RIVER_WIDTH;
     std::vector<Crocodile> crocodiles;
-    Graph graph;
+    Graph *graph;
     double *meerkats = nullptr;
     std::vector<Path> shortest_paths;
     int *meerkat_routes = nullptr;

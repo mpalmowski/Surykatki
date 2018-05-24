@@ -5,6 +5,7 @@
 #include "Raster.hpp"
 #include "BruteForce.hpp"
 #include "Generator.hpp"
+#include <string>
 
 typedef enum
 {

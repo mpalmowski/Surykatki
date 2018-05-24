@@ -20,7 +20,10 @@ public:
     }
 
     Raster(const int nr_of_crocodiles, const double river_length, const double river_width)
-            : Raster(nr_of_crocodiles, river_length, river_width, std::vector<Crocodile>()) {}
+            : Solver(nr_of_crocodiles, river_length, river_width)
+    {
+        createMap();
+    }
 
     Raster(const int nr_of_crocodiles, const double river_length, const double river_width,
            const std::vector<Crocodile> &crocodiles) : Solver(nr_of_crocodiles, river_length, river_width,
@@ -178,8 +181,8 @@ private:
                     {
                         if (index1 != index2)
                         {
-                            graph[index1][index2] = true;
-                            graph[index2][index1] = true;
+                            graph->node(index1, index2) = true;
+                            graph->node(index2, index1) = true;
                         }
                     }
                 }
