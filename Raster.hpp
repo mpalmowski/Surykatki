@@ -2,7 +2,7 @@
 #define RASTER_HPP
 
 #include "Solver.h"
-#include <queue>
+#include <list>
 #include <fstream>
 
 class Raster : public Solver
@@ -20,46 +20,51 @@ public:
     }
 
     Raster(const int nr_of_crocodiles, const double river_length, const double river_width)
-            : Solver(nr_of_crocodiles, river_length, river_width) {}
+            : Raster(nr_of_crocodiles, river_length, river_width, std::vector<Crocodile>()) {}
 
     Raster(const int nr_of_crocodiles, const double river_length, const double river_width,
            const std::vector<Crocodile> &crocodiles) : Solver(nr_of_crocodiles, river_length, river_width,
-                                                              crocodiles) {}
+                                                              crocodiles)
+    {
+        createMap();
+    }
 
-    ~Raster() override = default;
+    ~Raster() override
+    {
+        for (int i = 0; i < (int) (RIVER_LENGTH * RASTER_PRECISION); ++i)
+        {
+            delete[] pixel_map[i];
+        }
+        delete pixel_map;
+    }
 
 private:
-    const double RASTER_PRECISION = 10.0;
-    std::queue<int> **pixel_map = nullptr;
+    const double RASTER_PRECISION = 100.0;
+    std::list<int> **pixel_map = nullptr;
 
     void findConnections() override
     {
-        createMap();
-
         for (int i = 0; i < NR_OF_CROCODILES; ++i)
         {
             crocodiles[i].checkConnectionWithRiversides(RIVER_WIDTH, JUMP_RANGE);
-
-            for (int j = i + 1; j < NR_OF_CROCODILES; ++j)
-            {
-                checkConnections(crocodiles[i], i);
-            }
         }
+
+        checkConnections();
     }
 
     void createMap()
     {
-        pixel_map = new std::queue<int> *[(int) (RIVER_LENGTH * RASTER_PRECISION)];
+        pixel_map = new std::list<int> *[(int) (RIVER_LENGTH * RASTER_PRECISION)];
         for (int i = 0; i < (int) (RIVER_LENGTH * RASTER_PRECISION); ++i)
         {
-            pixel_map[i] = new std::queue<int>[(int) (RIVER_WIDTH * RASTER_PRECISION)];
+            pixel_map[i] = new std::list<int>[(int) (RIVER_WIDTH * RASTER_PRECISION)];
         }
 
         for (int i = 0; i < NR_OF_CROCODILES; ++i)
         {
             contour(crocodiles[i], i);
         }
-        testPrint();
+        //testPrint();
     }
 
     int mapped(double coord)
@@ -73,7 +78,7 @@ private:
             y < (int) (RIVER_WIDTH * RASTER_PRECISION))
         {
             if (pixel_map[x][y].empty() || pixel_map[x][y].back() != index)
-                pixel_map[x][y].push(index);
+                pixel_map[x][y].push_back(index);
         }
     }
 
@@ -81,7 +86,27 @@ private:
     {
         midPoint(croc.point1, JUMP_RANGE / 2, index);
         midPoint(croc.point2, JUMP_RANGE / 2, index);
-        //TODO
+
+        double delta_x = croc.point2.x - croc.point1.x;
+        double delta_y = croc.point2.y - croc.point1.y;
+        double ratio = (JUMP_RANGE / 2) / croc.length;
+        double new_x, new_y;
+
+        new_x = croc.point1.x + delta_y * ratio;
+        new_y = croc.point1.y + delta_x * -ratio;
+        Point p1(new_x, new_y);
+        new_x = croc.point2.x + delta_y * ratio;
+        new_y = croc.point2.y + delta_x * -ratio;
+        Point p2(new_x, new_y);
+        bresenhamLine(p1, p2, index);
+
+        new_x = croc.point1.x + delta_y * -ratio;
+        new_y = croc.point1.y + delta_x * ratio;
+        Point p3(new_x, new_y);
+        new_x = croc.point2.x + delta_y * -ratio;
+        new_y = croc.point2.y + delta_x * ratio;
+        Point p4(new_x, new_y);
+        bresenhamLine(p3, p4, index);
     }
 
     void bresenhamLine(Point p1, Point p2, int index)
@@ -141,25 +166,57 @@ private:
         }
     }
 
-    void checkConnections(Crocodile &croc, int index)
+    void checkConnections()
     {
-        //TODO
+        for (int x = 0; x < (int) (RIVER_LENGTH * RASTER_PRECISION); ++x)
+        {
+            for (int y = 0; y < (int) (RIVER_WIDTH * RASTER_PRECISION); ++y)
+            {
+                for (auto const &index1 : pixel_map[x][y])
+                {
+                    for (auto const &index2 : pixel_map[x][y])
+                    {
+                        if (index1 != index2)
+                        {
+                            graph[index1][index2] = true;
+                            graph[index2][index1] = true;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     void testPrint()
     {
         std::ofstream file;
-        file.open("test.txt");
+        file.open("test.ppm");
+
+        file << "P6" << "\n";
+        file << (int) (RIVER_LENGTH * RASTER_PRECISION) << " ";
+        file << (int) (RIVER_WIDTH * RASTER_PRECISION) << "\n";
+        file << 255 << "\n";
+
         for (int y = 0; y < (int) (RIVER_WIDTH * RASTER_PRECISION); ++y)
         {
             for (int x = 0; x < (int) (RIVER_LENGTH * RASTER_PRECISION); ++x)
             {
                 if (pixel_map[x][y].empty())
-                    file << 0;
+                    file << (char) 255 << (char) 255 << (char) 255;
                 else
-                    file << pixel_map[x][y].front();
+                {
+                    auto color = (unsigned int) ((float) pixel_map[x][y].back() *
+                                                 ((float) pow(255, 3) / (float) NR_OF_CROCODILES));
+
+                    int r = color % 255;
+                    color /= 255;
+                    int g = color % 255;
+                    color /= 255;
+                    int b = color % 255;
+
+                    file << (char) r << (char) g << (char) b;
+                }
             }
-            file << "\r\n";
         }
         file.close();
     }

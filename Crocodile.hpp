@@ -7,13 +7,16 @@
 struct Crocodile
 {
     Point point1{}, point2{};
-    double length, length_pow = 0;
+    double length = 0, length_pow = 0;
     int connected_to_start = 0;
     double *connection_with_start = nullptr;
     bool connected_to_finish = false;
 
-    Crocodile(double x1, double y1, double x2, double y2, double length) : length(length)
+    Crocodile(double x1, double y1, double x2, double y2)
     {
+        length = sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2));
+        length_pow = pow(length, 2);
+
         point1 = Point(x1, y1);
         point2 = Point(x2, y2);
 
@@ -25,8 +28,6 @@ struct Crocodile
         {
             Point::swap(point1, point2);
         }
-
-        length_pow = std::pow(length, 2);
     }
 
     ~Crocodile() = default;

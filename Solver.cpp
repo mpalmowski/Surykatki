@@ -111,8 +111,7 @@ void Solver::initCrocodiles()
         std::cin >> y1;
         std::cin >> x2;
         std::cin >> y2;
-        std::cin >> length;
-        crocodiles.emplace_back(x1, y1, x2, y2, length);
+        crocodiles.emplace_back(x1, y1, x2, y2);
     }
 }
 

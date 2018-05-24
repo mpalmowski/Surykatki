@@ -18,7 +18,7 @@ public:
     }
 
     BruteForce(const int nr_of_crocodiles, const double river_length, const double river_width)
-            : Solver(nr_of_crocodiles, river_length, river_width) {}
+            : BruteForce(nr_of_crocodiles, river_length, river_width, std::vector<Crocodile>()) {}
 
     BruteForce(const int nr_of_crocodiles, const double river_length, const double river_width,
                const std::vector<Crocodile> &crocodiles) : Solver(nr_of_crocodiles, river_length, river_width,

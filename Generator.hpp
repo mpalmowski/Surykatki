@@ -66,7 +66,7 @@ struct Generator
             x1 += CROC_MAX_LENGTH;
             x2 += CROC_MAX_LENGTH;
 
-            crocodiles.emplace_back(x1, y1, x2, y2, crocodile_length);
+            crocodiles.emplace_back(x1, y1, x2, y2);
         }
     }
 
@@ -80,7 +80,7 @@ struct Generator
             std::cout << crocodiles[i].point1.y << " ";
             std::cout << crocodiles[i].point2.x << " ";
             std::cout << crocodiles[i].point2.y << " ";
-            std::cout << crocodiles[i].length << endl;
+            std::cout << endl;
         }
     }
 };
