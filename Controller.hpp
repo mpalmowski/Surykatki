@@ -7,11 +7,18 @@
 #include "Generator.hpp"
 #include <string>
 
+void showManual()
+{
+    std::ifstream file("msg");
+    std::string msg((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+    std::cout << msg;
+}
+
 typedef enum
 {
     brute_force,
     raster
-}Algorithm;
+} Algorithm;
 
 class Controller
 {
@@ -43,6 +50,8 @@ public:
             m3();
         else if (buf == "-gen")
             gen();
+        else if (buf == "-help")
+            showManual();
         else
             throw std::invalid_argument("Expected mode flag.");
 
@@ -152,10 +161,12 @@ private:
         switch (algorithm)
         {
             case brute_force:
-                solver = new BruteForce(nr_of_crocs, generator.real_river_length, generator.RIVER_WIDTH, generator.crocodiles);
+                solver = new BruteForce(nr_of_crocs, generator.real_river_length, generator.RIVER_WIDTH,
+                                        generator.crocodiles);
                 break;
             case raster:
-                solver = new Raster(nr_of_crocs, generator.real_river_length, generator.RIVER_WIDTH, generator.crocodiles);
+                solver = new Raster(nr_of_crocs, generator.real_river_length, generator.RIVER_WIDTH,
+                                    generator.crocodiles);
                 break;
         }
         solver->solve();
@@ -188,10 +199,12 @@ private:
                 switch (algorithm)
                 {
                     case brute_force:
-                        solver = new BruteForce(n, generator.real_river_length, generator.RIVER_WIDTH, generator.crocodiles);
+                        solver = new BruteForce(n, generator.real_river_length, generator.RIVER_WIDTH,
+                                                generator.crocodiles);
                         break;
                     case raster:
-                        solver = new Raster(n, generator.real_river_length, generator.RIVER_WIDTH, generator.crocodiles);
+                        solver = new Raster(n, generator.real_river_length, generator.RIVER_WIDTH,
+                                            generator.crocodiles);
                         break;
                 }
 

@@ -2,6 +2,7 @@
 #define RASTER_HPP
 
 #include "Solver.h"
+#include "PixelMap.hpp"
 #include <list>
 #include <fstream>
 
@@ -21,32 +22,26 @@ public:
 
     Raster(const int nr_of_crocodiles, const double river_length, const double river_width)
             : Solver(nr_of_crocodiles, river_length, river_width)
-    {
-        createMap();
-    }
+    {}
 
     Raster(const int nr_of_crocodiles, const double river_length, const double river_width,
            const std::vector<Crocodile> &crocodiles) : Solver(nr_of_crocodiles, river_length, river_width,
                                                               crocodiles)
-    {
-        createMap();
-    }
+    {}
 
     ~Raster() override
     {
-        for (int i = 0; i < (int) (RIVER_LENGTH * RASTER_PRECISION); ++i)
-        {
-            delete[] pixel_map[i];
-        }
         delete pixel_map;
     }
 
 private:
     const double RASTER_PRECISION = 100.0;
-    std::list<int> **pixel_map = nullptr;
+    int map_width = 0, map_height = 0;
+    PixelMap<int> *pixel_map = nullptr;
 
     void findConnections() override
     {
+        createMap();
         for (int i = 0; i < NR_OF_CROCODILES; ++i)
         {
             crocodiles[i].checkConnectionWithRiversides(RIVER_WIDTH, JUMP_RANGE);
@@ -57,11 +52,10 @@ private:
 
     void createMap()
     {
-        pixel_map = new std::list<int> *[(int) (RIVER_LENGTH * RASTER_PRECISION)];
-        for (int i = 0; i < (int) (RIVER_LENGTH * RASTER_PRECISION); ++i)
-        {
-            pixel_map[i] = new std::list<int>[(int) (RIVER_WIDTH * RASTER_PRECISION)];
-        }
+        map_width = (int) (RIVER_LENGTH * RASTER_PRECISION);
+        map_height = (int) (RIVER_WIDTH * RASTER_PRECISION);
+
+        pixel_map = new PixelMap<int>(map_width, map_height);
 
         for (int i = 0; i < NR_OF_CROCODILES; ++i)
         {
@@ -77,11 +71,10 @@ private:
 
     void addPixel(int x, int y, int index)
     {
-        if (x >= 0 && y >= 0 && x < (int) (RIVER_LENGTH * RASTER_PRECISION) &&
-            y < (int) (RIVER_WIDTH * RASTER_PRECISION))
+        if (x >= 0 && y >= 0 && x < map_width &&
+            y < map_height)
         {
-            if (pixel_map[x][y].empty() || pixel_map[x][y].back() != index)
-                pixel_map[x][y].push_back(index);
+            pixel_map->putPixel(x, y, index);
         }
     }
 
@@ -171,18 +164,23 @@ private:
 
     void checkConnections()
     {
-        for (int x = 0; x < (int) (RIVER_LENGTH * RASTER_PRECISION); ++x)
+        for (int x = 0; x < map_width; ++x)
         {
-            for (int y = 0; y < (int) (RIVER_WIDTH * RASTER_PRECISION); ++y)
+            for (int y = 0; y < map_height; ++y)
             {
-                for (auto const &index1 : pixel_map[x][y])
+                auto pixel = pixel_map->getPixel(x, y);
+                if (pixel == nullptr)
+                    continue;
+                int *pixel_data = pixel->getData();
+                int size = pixel->getSize();
+                for (int i = 0; i < size; ++i)
                 {
-                    for (auto const &index2 : pixel_map[x][y])
+                    for (int j = 0; j < size; ++j)
                     {
-                        if (index1 != index2)
+                        if (pixel_data[i] != pixel_data[j])
                         {
-                            graph->node(index1, index2) = true;
-                            graph->node(index2, index1) = true;
+                            graph->node(pixel_data[i], pixel_data[j]) = 1;
+                            graph->node(pixel_data[j], pixel_data[i]) = 1;
                         }
                     }
                 }
@@ -196,26 +194,32 @@ private:
         file.open("test.ppm");
 
         file << "P6" << "\n";
-        file << (int) (RIVER_LENGTH * RASTER_PRECISION) << " ";
-        file << (int) (RIVER_WIDTH * RASTER_PRECISION) << "\n";
+        file << map_width << " ";
+        file << map_height << "\n";
         file << 255 << "\n";
 
-        for (int y = 0; y < (int) (RIVER_WIDTH * RASTER_PRECISION); ++y)
+        const int colors_skipped = 150;
+        const double nr_of_colors = pow(256, 3) - 1 - colors_skipped;
+        const double normal = nr_of_colors / (NR_OF_CROCODILES - 1);
+
+        for (int y = map_height - 1; y >= 0; --y)
         {
-            for (int x = 0; x < (int) (RIVER_LENGTH * RASTER_PRECISION); ++x)
+            for (int x = 0; x < map_width; ++x)
             {
-                if (pixel_map[x][y].empty())
+                UniqueSet<int> *pixel = pixel_map->getPixel(x, y);
+                if (pixel == nullptr)
                     file << (char) 255 << (char) 255 << (char) 255;
                 else
                 {
-                    auto color = (unsigned int) ((float) pixel_map[x][y].back() *
-                                                 ((float) pow(255, 3) / (float) NR_OF_CROCODILES));
+                    auto pixel_data = pixel->getData();
+                    auto color = (unsigned int) (pixel_data[0] * normal);
 
-                    int r = color % 255;
-                    color /= 255;
-                    int g = color % 255;
-                    color /= 255;
-                    int b = color % 255;
+                    color += 1;
+                    int b = color % 256;
+                    color /= 256;
+                    int g = color % 256;
+                    color /= 256;
+                    int r = color % 256;
 
                     file << (char) r << (char) g << (char) b;
                 }

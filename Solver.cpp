@@ -1,12 +1,11 @@
 #include "Solver.h"
-#include "Statistics.hpp"
 
 Solver::Solver(const int nr_of_crocodiles, const double river_length, const double river_width,
                const std::vector<Crocodile> &crocodiles) : NR_OF_CROCODILES(nr_of_crocodiles),
                                                            RIVER_LENGTH(river_length), RIVER_WIDTH(river_width),
                                                            crocodiles(crocodiles)
 {
-    graph = new Graph(nr_of_crocodiles + NR_OF_MEERKATS, nr_of_crocodiles);
+    graph = new Graph(NR_OF_CROCODILES + NR_OF_MEERKATS, NR_OF_CROCODILES);
 
     for (int i = 0; i < graph->lines; ++i)
         for (int j = 0; j < graph->columns; ++j)
@@ -24,7 +23,7 @@ Solver::Solver(const int nr_of_crocodiles, const double river_length, const doub
         meerkat_routes[i] = 0;
     }
 
-    sortCrocodiles();
+    //sortCrocodiles();
 }
 
 Solver::Solver(int nr_of_crocodiles, double river_length, double river_width) : Solver(nr_of_crocodiles, river_length,
@@ -59,7 +58,13 @@ void Solver::solve(Statistics &statistics)
 {
     statistics.start();
 
-    solve();
+    findConnections();
+
+    calcMeerkatsDistances();
+
+    findPaths();
+
+    jumpAcrossRiver();
 
     statistics.stop();
 }
@@ -89,24 +94,27 @@ void Solver::printFullResult()
         std::cout << std::endl;
     }
 
+    for (auto &shortest_path : shortest_paths)
+    {
+        if(shortest_path.length > 0)
+            std::cout << shortest_path.start_node << " -> " << shortest_path.finish_node << " "
+                  << shortest_path.length << std::endl;
+    }
+
     if (meerkat_routes[0] == 0)
     {
         std::cout << "No possible way found to cross the river" << std::endl;
     }
     else
     {
-        for (auto &shortest_path : shortest_paths)
-            std::cout << shortest_path.start_node << " -> " << shortest_path.finish_node << " "
-                      << shortest_path.length << std::endl;
-
-        for (int i = 0; i < NR_OF_MEERKATS; ++i)
-            std::cout << "Meerkat[" << i << "] crossed the river in " << meerkat_routes[i] << " jumps" << std::endl;
+    for (int i = 0; i < NR_OF_MEERKATS; ++i)
+        std::cout << "Meerkat[" << i << "] crossed the river in " << meerkat_routes[i] << " jumps" << std::endl;
     }
 }
 
 void Solver::initCrocodiles()
 {
-    double x1, y1, x2, y2, length;
+    double x1, y1, x2, y2;
     for (int i = 0; i < NR_OF_CROCODILES; ++i)
     {
         std::cin >> x1;
@@ -165,25 +173,25 @@ void Solver::findPaths()
 
     for (int i = 0; i < NR_OF_CROCODILES; ++i)
     {
-        if (crocodiles[i].connected_to_start == 0)
-            continue;
-
-        graph->BreadthFirstSearch(i);
-
         shortest_path = Path(i, i, 0);
 
-        for (int j = 0; j < NR_OF_CROCODILES; ++j)
+        if (crocodiles[i].connected_to_start > 0)
         {
-            if (crocodiles[j].connected_to_finish == 0)
-                continue;
+            graph->BreadthFirstSearch(i);
 
-            auto distance = graph->getDistance(i, j);
-            if (distance != 0)
+            for (int j = 0; j < NR_OF_CROCODILES; ++j)
             {
-                temp_path = Path(i, j, distance);
+                if (!crocodiles[j].connected_to_finish)
+                    continue;
 
-                if (temp_path.length < shortest_path.length || shortest_path.length == 0)
-                    shortest_path = temp_path;
+                auto distance = graph->getDistance(i, j);
+                if (distance != 0)
+                {
+                    temp_path = Path(i, j, distance);
+
+                    if (temp_path.length < shortest_path.length || shortest_path.length == 0)
+                        shortest_path = temp_path;
+                }
             }
         }
 

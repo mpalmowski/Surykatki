@@ -8,7 +8,7 @@
 const double CROC_MAX_LENGTH = 2.0;
 const double CROC_MIN_LENGTH = 0.5;
 const double WIDTH_ASPECT = 0.5;
-const double LENGTH_ASPECT = 2;
+const double LENGTH_ASPECT = 1.0;
 
 double doubleRand()
 {

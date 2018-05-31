@@ -2,6 +2,8 @@
 #define GRAPH_HPP
 
 #include <list>
+#include <exception>
+#include <sstream>
 
 class Graph
 {
@@ -36,21 +38,27 @@ public:
     {
         for (int i = 0; i < lines; ++i)
         {
-            delete[] data[i];
+            delete data[i];
         }
-        delete data;
+        delete[] data;
 
         for (int i = 0; i < columns; ++i)
         {
-            delete[] paths[i];
+            delete paths[i];
         }
-        delete paths;
+        delete[] paths;
 
         delete visited;
     }
 
     int &node(int i, int j)
     {
+        if(i >= lines || j >= columns)
+        {
+            std::stringstream msg;
+            msg<<"Graph index out of range: "<<i<<", "<<j<<".";
+            throw std::out_of_range(msg.str());
+        }
         return data[i][j];
     }
 

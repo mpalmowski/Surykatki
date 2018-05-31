@@ -53,10 +53,10 @@ public:
 
     void print(int init_n, int step, Complexity complexity)
     {
-        std::cout << "n;t(n);T(n);q(n);" << "\r\n";
+        std::cout << "n;t(n);T(n);q(n)" << "\r\n";
 
-		long double *estimated_times;
-		estimated_times = new long double[trials.size()];
+        long double *estimated_times;
+        estimated_times = new long double[trials.size()];
         for (int i = 0; i < trials.size(); ++i)
         {
             estimated_times[i] = init_n + i * step;
@@ -70,11 +70,11 @@ public:
         {
             q = (trials[i] * estimated_times[trials.size() / 2]) / (estimated_times[i] * trials[trials.size() / 2]);
 
-            std::cout << n << ";" << trials[i] * 1000 << ";" << estimated_times[i] << ";" << q << ";" << "\r\n";
+            std::cout << n << ";" << trials[i] * 1000 << ";" << estimated_times[i] << ";" << q << "\r\n";
 
             n += step;
         }
-		delete estimated_times;
+        delete estimated_times;
     }
 
 private:
