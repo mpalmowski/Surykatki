@@ -61,7 +61,7 @@ private:
         {
             contour(crocodiles[i], i);
         }
-        //testPrint();
+        testPrint();
     }
 
     int mapped(double coord)
@@ -206,7 +206,7 @@ private:
         {
             for (int x = 0; x < map_width; ++x)
             {
-                UniqueSet<int> *pixel = pixel_map->getPixel(x, y);
+                Pixel<int> *pixel = pixel_map->getPixel(x, y);
                 if (pixel == nullptr)
                     file << (char) 255 << (char) 255 << (char) 255;
                 else

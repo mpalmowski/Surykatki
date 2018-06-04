@@ -1,5 +1,5 @@
-#ifndef MODES_HPP
-#define MODES_HPP
+#ifndef CONTROLLER_HPP
+#define CONTROLLER_HPP
 
 #include <exception>
 #include "Raster.hpp"
@@ -239,4 +239,4 @@ private:
 
 };
 
-#endif
+#endif //CONTROLLER_HPP

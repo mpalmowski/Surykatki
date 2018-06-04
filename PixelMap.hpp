@@ -1,7 +1,7 @@
-#ifndef PIXELMAP_HPP
-#define PIXELMAP_HPP
+#ifndef PIXEL_MAP_HPP
+#define PIXEL_MAP_HPP
 
-#include "UniqueSet.hpp"
+#include "Pixel.hpp"
 
 template<class Type>
 class PixelMap
@@ -9,9 +9,9 @@ class PixelMap
 public:
     PixelMap(int width, int height) : WIDTH(width), HEIGHT(height)
     {
-        map = new UniqueSet<Type> **[WIDTH];
+        map = new Pixel<Type> **[WIDTH];
         for(int i = 0; i < WIDTH; ++i)
-            map[i] = new UniqueSet<Type> *[HEIGHT];
+            map[i] = new Pixel<Type> *[HEIGHT];
 
         for(int i = 0; i < WIDTH; ++i)
             for(int j = 0; j < HEIGHT; ++j)
@@ -33,7 +33,7 @@ public:
     void putPixel(int x, int y, Type value)
     {
         if (map[x][y] == nullptr)
-            map[x][y] = new UniqueSet<Type>;
+            map[x][y] = new Pixel<Type>;
 
         map[x][y]->add(value);
 
@@ -41,14 +41,14 @@ public:
         int size = map[x][y]->getSize();
     }
 
-    UniqueSet<Type> *getPixel(int x, int y)
+    Pixel<Type> *getPixel(int x, int y)
     {
         return map[x][y];
     }
 
 private:
     const int WIDTH, HEIGHT;
-    UniqueSet<Type> ***map;
+    Pixel<Type> ***map;
 };
 
-#endif //PIXELMAP_HPP
+#endif //PIXEL_MAP_HPP

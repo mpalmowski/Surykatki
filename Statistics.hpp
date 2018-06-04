@@ -9,8 +9,7 @@
 typedef enum
 {
     linear = 1,
-    square = 2,
-    cubic = 3
+    square = 2
 } Complexity;
 
 class Statistics
@@ -55,8 +54,8 @@ public:
     {
         std::cout << "n;t(n);T(n);q(n)" << "\r\n";
 
-        long double *estimated_times;
-        estimated_times = new long double[trials.size()];
+        double *estimated_times;
+        estimated_times = new double[trials.size()];
         for (int i = 0; i < trials.size(); ++i)
         {
             estimated_times[i] = init_n + i * step;

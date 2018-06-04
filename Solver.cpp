@@ -98,7 +98,7 @@ void Solver::printFullResult()
     {
         if(shortest_path.length > 0)
             std::cout << shortest_path.start_node << " -> " << shortest_path.finish_node << " "
-                  << shortest_path.length << std::endl;
+                      << shortest_path.length << std::endl;
     }
 
     if (meerkat_routes[0] == 0)
@@ -107,8 +107,8 @@ void Solver::printFullResult()
     }
     else
     {
-    for (int i = 0; i < NR_OF_MEERKATS; ++i)
-        std::cout << "Meerkat[" << i << "] crossed the river in " << meerkat_routes[i] << " jumps" << std::endl;
+        for (int i = 0; i < NR_OF_MEERKATS; ++i)
+            std::cout << "Meerkat[" << i << "] crossed the river in " << meerkat_routes[i] << " jumps" << std::endl;
     }
 }
 

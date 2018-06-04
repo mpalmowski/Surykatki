@@ -11,7 +11,7 @@
 #include "Statistics.hpp"
 
 const double JUMP_RANGE = 1.0;
-const int NR_OF_MEERKATS = 5;
+const int NR_OF_MEERKATS = 10;
 
 struct Path
 {
